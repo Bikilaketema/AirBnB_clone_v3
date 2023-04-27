@@ -155,8 +155,11 @@ No known bugs at this time.
 
 ## Authors
 Alexa Orrico - [Github](https://github.com/alexaorrico) / [Twitter](https://twitter.com/alexa_orrico)  
-Jennifer Huang - [Github](https://github.com/jhuang10123) / [Twitter](https://twitter.com/earthtojhuang)
+Jennifer Huang - [Github](https://github.com/jhuang10123) /[Twitter](https://twitter.com/earthtojhuang)
 
-Second part of Airbnb: Joann Vuong
+ALX(Holberton School) Students
+Bekalu Endrias - [Github](https://github.com/bekalue) /[Twitter](https://twitter.com/BekaluEndrias)
+Bikila Ketema - [Github](https://github.com/bikilaketema /[Twitter](https://twitter.com/Bikilaketema)
+
 ## License
 Public Domain. No copy write protection. 
