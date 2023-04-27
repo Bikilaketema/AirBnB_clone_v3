@@ -161,7 +161,7 @@ ALX(Holberton School) Students
 
 Bekalu Endrias - [Github](https://github.com/bekalue) /[Twitter](https://twitter.com/BekaluEndrias)
 
-Bikila Ketema - [Github](https://github.com/bikilaketema /[Twitter](https://twitter.com/Bikilaketema)
+Bikila Ketema - [Github](https://github.com/bikilaketema) /[Twitter](https://twitter.com/Bikilaketema)
 
 ## License
 Public Domain. No copy write protection. 
