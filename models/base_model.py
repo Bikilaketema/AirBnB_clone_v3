@@ -74,8 +74,8 @@ class BaseModel:
         a_class_name = ''
         if 'self' in a_frame.f_locals:
             a_class_name = a_frame.f_locals["self"].__class__.__name__
-        _is_fs_writing = a_func_name == 'save' and a_class_name == 'FileStorage'
-        if 'password' in new_dict and not _is_fs_writing:
+        is_fs_writing = a_func_name == 'save' and a_class_name == 'FileStorage'
+        if 'password' in new_dict and not is_fs_writing:
             del new_dict['password']
         return new_dict
 
