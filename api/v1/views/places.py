@@ -12,9 +12,9 @@ from models.state import State
 from models.user import User
 
 
-@app_views.route('/cities/<id_city>/places', methods=['GET', 'POST'])
-@app_views.route('/places/<id_place>', methods=['GET', 'DELETE', 'PUT'])
-def handle_place(id_city=None, id_place=None):
+@app_views.route('/cities/<city_id>/places', methods=['GET', 'POST'])
+@app_views.route('/places/<place_id>', methods=['GET', 'DELETE', 'PUT'])
+def handle_place(city_id=None, place_id=None):
     """The method handler for the places endpoint.
     """
     handler_dict = {
@@ -24,40 +24,40 @@ def handle_place(id_city=None, id_place=None):
         'PUT': update_place
     }
     if request.method in handler_dict:
-        return handler_dict[request.method](id_city, id_place)
+        return handler_dict[request.method](city_id, place_id)
     else:
         raise MethodNotAllowed(list(handler_dict.keys()))
 
 
-def get_place(id_city=None, id_place=None):
+def get_place(city_id=None, place_id=None):
     """Gets the place with the given id or all places in
        the city with the given id.
     """
-    if id_city:
-        city = storage.get(City, id_city)
+    if city_id:
+        city = storage.get(City, city_id)
         if city:
-            all_places = []
+            a_places = []
             if storage_t == 'db':
-                all_places = list(city.places)
+                a_places = list(city.places)
             else:
-                all_places = list(filter(
-                    lambda x: x.id_city == id_city,
+                a_places = list(filter(
+                    lambda x: x.city_id == city_id,
                     storage.all(Place).values()
                 ))
-            places = list(map(lambda x: x.to_dict(), all_places))
+            places = list(map(lambda x: x.to_dict(), a_places))
             return jsonify(places)
-    elif id_place:
-        place = storage.get(Place, id_place)
+    elif place_id:
+        place = storage.get(Place, place_id)
         if place:
             return jsonify(place.to_dict())
     raise NotFound()
 
 
-def remove_place(id_city=None, id_place=None):
+def remove_place(city_id=None, place_id=None):
     """Removes a place with the given id.
     """
-    if id_place:
-        place = storage.get(Place, id_place)
+    if place_id:
+        place = storage.get(Place, place_id)
         if place:
             storage.delete(place)
             storage.save()
@@ -65,33 +65,33 @@ def remove_place(id_city=None, id_place=None):
     raise NotFound()
 
 
-def add_place(id_city=None, id_place=None):
+def add_place(city_id=None, place_id=None):
     """Adds a new place.
     """
-    city = storage.get(City, id_city)
+    city = storage.get(City, city_id)
     if not city:
         raise NotFound()
     data = request.get_json()
     if type(data) is not dict:
         raise BadRequest(description='Not a JSON')
-    if 'id_user' not in data:
-        raise BadRequest(description='Missing id_user')
-    user = storage.get(User, data['id_user'])
+    if 'user_id' not in data:
+        raise BadRequest(description='Missing user_id')
+    user = storage.get(User, data['user_id'])
     if not user:
         raise NotFound()
     if 'name' not in data:
         raise BadRequest(description='Missing name')
-    data['id_city'] = id_city
+    data['city_id'] = city_id
     new_place = Place(**data)
     new_place.save()
     return jsonify(new_place.to_dict()), 201
 
 
-def update_place(id_city=None, id_place=None):
+def update_place(city_id=None, place_id=None):
     """Updates the place with the given id.
     """
-    x_keys = ('id', 'id_user', 'id_city', 'created_at', 'updated_at')
-    place = storage.get(Place, id_place)
+    x_keys = ('id', 'user_id', 'city_id', 'created_at', 'updated_at')
+    place = storage.get(Place, place_id)
     if place:
         data = request.get_json()
         if type(data) is not dict:
@@ -105,16 +105,16 @@ def update_place(id_city=None, id_place=None):
 
 
 @app_views.route('/places_search', methods=['POST'])
-def find_places():
+def find_place():
     """Finds places based on a list of State, City, or Amenity ids.
     """
     data = request.get_json()
     if type(data) is not dict:
         raise BadRequest(description='Not a JSON')
-    all_places = storage.all(Place).values()
+    a_places = storage.all(Place).values()
     places = []
     places_id = []
-    keys_status = (
+    key_status = (
         all([
             'states' in data and type(data['states']) is list,
             'states' in data and len(data['states'])
@@ -128,11 +128,11 @@ def find_places():
             'amenities' in data and len(data['amenities'])
         ])
     )
-    if keys_status[0]:
-        for id_state in data['states']:
-            if not id_state:
+    if key_status[0]:
+        for state_id in data['states']:
+            if not state_id:
                 continue
-            state = storage.get(State, id_state)
+            state = storage.get(State, state_id)
             if not state:
                 continue
             for city in state.cities:
@@ -143,18 +143,18 @@ def find_places():
                     )
                 else:
                     new_places = []
-                    for place in all_places:
+                    for place in a_places:
                         if place.id in places_id:
                             continue
-                        if place.id_city == city.id:
+                        if place.city_id == city.id:
                             new_places.append(place)
                 places.extend(new_places)
                 places_id.extend(list(map(lambda x: x.id, new_places)))
-    if keys_status[1]:
-        for id_city in data['cities']:
-            if not id_city:
+    if key_status[1]:
+        for city_id in data['cities']:
+            if not city_id:
                 continue
-            city = storage.get(City, id_city)
+            city = storage.get(City, city_id)
             if city:
                 new_places = []
                 if storage_t == 'db':
@@ -163,21 +163,21 @@ def find_places():
                     )
                 else:
                     new_places = []
-                    for place in all_places:
+                    for place in a_places:
                         if place.id in places_id:
                             continue
-                        if place.id_city == city.id:
+                        if place.city_id == city.id:
                             new_places.append(place)
                 places.extend(new_places)
     del places_id
-    if all([not keys_status[0], not keys_status[1]]) or not data:
-        places = all_places
-    if keys_status[2]:
+    if all([not key_status[0], not key_status[1]]) or not data:
+        places = a_places
+    if key_status[2]:
         amenity_ids = []
-        for id_amenity in data['amenities']:
-            if not id_amenity:
+        for amenity_id in data['amenities']:
+            if not amenity_id:
                 continue
-            amenity = storage.get(Amenity, id_amenity)
+            amenity = storage.get(Amenity, amenity_id)
             if amenity and amenity.id not in amenity_ids:
                 amenity_ids.append(amenity.id)
         del_indices = []
@@ -185,8 +185,8 @@ def find_places():
             place_amenities_ids = list(map(lambda x: x.id, place.amenities))
             if not amenity_ids:
                 continue
-            for id_amenity in amenity_ids:
-                if id_amenity not in place_amenities_ids:
+            for amenity_id in amenity_ids:
+                if amenity_id not in place_amenities_ids:
                     del_indices.append(place.id)
                     break
         places = list(filter(lambda x: x.id not in del_indices, places))
