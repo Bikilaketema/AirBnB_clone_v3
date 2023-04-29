@@ -57,12 +57,12 @@ def remove_amenity(id_amenity=None):
 def add_amenity(id_amenity=None):
     """Adds a new amenity.
     """
-    data = request.get_json()
-    if type(data) is not dict:
+    a_data = request.get_json()
+    if type(a_data) is not dict:
         raise BadRequest(description='Not a JSON')
-    if 'name' not in data:
+    if 'name' not in a_data:
         raise BadRequest(description='Missing name')
-    new_amenity = Amenity(**data)
+    new_amenity = Amenity(**a_data)
     new_amenity.save()
     return jsonify(new_amenity.to_dict()), 201
 
@@ -74,11 +74,11 @@ def update_amenity(id_amenity=None):
     all_amenities = storage.all(Amenity).values()
     result = list(filter(lambda x: x.id == id_amenity, all_amenities))
     if result:
-        data = request.get_json()
-        if type(data) is not dict:
+        a_data = request.get_json()
+        if type(a_data) is not dict:
             raise BadRequest(description='Not a JSON')
         old_amenity = result[0]
-        for key, value in data.items():
+        for key, value in a_data.items():
             if key not in x_keys:
                 setattr(old_amenity, key, value)
         old_amenity.save()

@@ -57,12 +57,12 @@ def remove_state(id_state=None):
 def add_state(id_state=None):
     """Adds a new state.
     """
-    data = request.get_json()
-    if type(data) is not dict:
+    a_data = request.get_json()
+    if type(a_data) is not dict:
         raise BadRequest(description='Not a JSON')
-    if 'name' not in data:
+    if 'name' not in a_data:
         raise BadRequest(description='Missing name')
-    new_state = State(**data)
+    new_state = State(**a_data)
     new_state.save()
     return jsonify(new_state.to_dict()), 201
 
@@ -74,11 +74,11 @@ def update_state(id_state=None):
     all_states = storage.all(State).values()
     result = list(filter(lambda x: x.id == id_state, all_states))
     if result:
-        data = request.get_json()
-        if type(data) is not dict:
+        a_data = request.get_json()
+        if type(a_data) is not dict:
             raise BadRequest(description='Not a JSON')
         old_state = result[0]
-        for key, value in data.items():
+        for key, value in a_data.items():
             if key not in x_keys:
                 setattr(old_state, key, value)
         old_state.save()

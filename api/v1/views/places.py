@@ -71,18 +71,18 @@ def add_place(city_id=None, place_id=None):
     city = storage.get(City, city_id)
     if not city:
         raise NotFound()
-    data = request.get_json()
-    if type(data) is not dict:
+    a_data = request.get_json()
+    if type(a_data) is not dict:
         raise BadRequest(description='Not a JSON')
-    if 'user_id' not in data:
+    if 'user_id' not in a_data:
         raise BadRequest(description='Missing user_id')
-    user = storage.get(User, data['user_id'])
+    user = storage.get(User, a_data['user_id'])
     if not user:
         raise NotFound()
-    if 'name' not in data:
+    if 'name' not in a_data:
         raise BadRequest(description='Missing name')
-    data['city_id'] = city_id
-    new_place = Place(**data)
+    a_data['city_id'] = city_id
+    new_place = Place(**a_data)
     new_place.save()
     return jsonify(new_place.to_dict()), 201
 
@@ -93,10 +93,10 @@ def update_place(city_id=None, place_id=None):
     x_keys = ('id', 'user_id', 'city_id', 'created_at', 'updated_at')
     place = storage.get(Place, place_id)
     if place:
-        data = request.get_json()
-        if type(data) is not dict:
+        a_data = request.get_json()
+        if type(a_data) is not dict:
             raise BadRequest(description='Not a JSON')
-        for key, value in data.items():
+        for key, value in a_data.items():
             if key not in x_keys:
                 setattr(place, key, value)
         place.save()
@@ -108,28 +108,28 @@ def update_place(city_id=None, place_id=None):
 def find_place():
     """Finds places based on a list of State, City, or Amenity ids.
     """
-    data = request.get_json()
-    if type(data) is not dict:
+    a_data = request.get_json()
+    if type(a_data) is not dict:
         raise BadRequest(description='Not a JSON')
     a_places = storage.all(Place).values()
     places = []
     places_id = []
     key_status = (
         all([
-            'states' in data and type(data['states']) is list,
-            'states' in data and len(data['states'])
+            'states' in a_data and type(a_data['states']) is list,
+            'states' in a_data and len(a_data['states'])
         ]),
         all([
-            'cities' in data and type(data['cities']) is list,
-            'cities' in data and len(data['cities'])
+            'cities' in a_data and type(a_data['cities']) is list,
+            'cities' in a_data and len(a_data['cities'])
         ]),
         all([
-            'amenities' in data and type(data['amenities']) is list,
-            'amenities' in data and len(data['amenities'])
+            'amenities' in a_data and type(a_data['amenities']) is list,
+            'amenities' in a_data and len(a_data['amenities'])
         ])
     )
     if key_status[0]:
-        for state_id in data['states']:
+        for state_id in a_data['states']:
             if not state_id:
                 continue
             state = storage.get(State, state_id)
@@ -151,7 +151,7 @@ def find_place():
                 places.extend(new_places)
                 places_id.extend(list(map(lambda x: x.id, new_places)))
     if key_status[1]:
-        for city_id in data['cities']:
+        for city_id in a_data['cities']:
             if not city_id:
                 continue
             city = storage.get(City, city_id)
@@ -170,11 +170,11 @@ def find_place():
                             new_places.append(place)
                 places.extend(new_places)
     del places_id
-    if all([not key_status[0], not key_status[1]]) or not data:
+    if all([not key_status[0], not key_status[1]]) or not a_data:
         places = a_places
     if key_status[2]:
         amenity_ids = []
-        for amenity_id in data['amenities']:
+        for amenity_id in a_data['amenities']:
             if not amenity_id:
                 continue
             amenity = storage.get(Amenity, amenity_id)

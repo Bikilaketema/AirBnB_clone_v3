@@ -51,18 +51,18 @@ def remove_user(id_user):
 def add_user():
     """Adds a new user.
     """
-    data = {}
+    a_data = {}
     try:
-        data = request.get_json()
+        a_data = request.get_json()
     except Exception:
-        data = None
-    if type(data) is not dict:
+        a_data = None
+    if type(a_data) is not dict:
         raise BadRequest(description='Not a JSON')
-    if 'email' not in data:
+    if 'email' not in a_data:
         raise BadRequest(description='Missing email')
-    if 'password' not in data:
+    if 'password' not in a_data:
         raise BadRequest(description='Missing password')
-    user = User(**data)
+    user = User(**a_data)
     user.save()
     _object = user.to_dict()
     if 'places' in _object:
@@ -79,14 +79,14 @@ def update_user(id_user):
     x_keys = ('id', 'email', 'created_at', 'updated_at')
     user = storage.get(User, id_user)
     if user:
-        data = {}
+        a_data = {}
         try:
-            data = request.get_json()
+            a_data = request.get_json()
         except Exception:
-            data = None
-        if type(data) is not dict:
+            a_data = None
+        if type(a_data) is not dict:
             raise BadRequest(description='Not a JSON')
-        for key, value in data.items():
+        for key, value in a_data.items():
             if key not in x_keys:
                 setattr(user, key, value)
         user.save()

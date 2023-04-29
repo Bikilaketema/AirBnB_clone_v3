@@ -69,13 +69,13 @@ def add_city(state_id=None, city_id=None):
     state = storage.get(State, state_id)
     if not state:
         raise NotFound()
-    data = request.get_json()
-    if type(data) is not dict:
+    a_data = request.get_json()
+    if type(a_data) is not dict:
         raise BadRequest(description='Not a JSON')
-    if 'name' not in data:
+    if 'name' not in a_data:
         raise BadRequest(description='Missing name')
-    data['state_id'] = state_id
-    city = City(**data)
+    a_data['state_id'] = state_id
+    city = City(**a_data)
     city.save()
     return jsonify(city.to_dict()), 201
 
@@ -87,10 +87,10 @@ def update_city(state_id=None, city_id=None):
     if city_id:
         city = storage.get(City, city_id)
         if city:
-            data = request.get_json()
-            if type(data) is not dict:
+            a_data = request.get_json()
+            if type(a_data) is not dict:
                 raise BadRequest(description='Not a JSON')
-            for key, value in data.items():
+            for key, value in a_data.items():
                 if key not in x_keys:
                     setattr(city, key, value)
             city.save()
