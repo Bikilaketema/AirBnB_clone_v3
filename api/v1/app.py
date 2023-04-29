@@ -1,10 +1,9 @@
 #!/usr/bin/python3
-'''Contains a Flask web application API.
-'''
+"""A module that contains a Flask web application API.
+"""
 import os
 from flask import Flask, jsonify
 from flask_cors import CORS
-
 from models import storage
 from api.v1.views import app_views
 
@@ -19,22 +18,22 @@ CORS(app, resources={'/*': {'origins': app_host}})
 
 @app.teardown_appcontext
 def teardown_flask(exception):
-    '''The Flask app/request context end event listener.
-    '''
+    """The Flask app/request context end event listener.
+    """
     storage.close()
 
 
 @app.errorhandler(404)
 def error_404(error):
-    '''Handles the 404 HTTP error code.
-    '''
+    """Handles the 404 HTTP error code.
+    """
     return jsonify(error='Not found'), 404
 
 
 @app.errorhandler(400)
 def error_400(exec):
-    '''Handles the 400 HTTP error code.
-    '''
+    """Handles the 400 HTTP error code.
+    """
     message = 'Bad request'
     if isinstance(exec, Exception) and hasattr(exec, 'description'):
         message = exec.description

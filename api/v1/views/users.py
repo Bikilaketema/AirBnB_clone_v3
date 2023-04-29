@@ -9,37 +9,37 @@ from models.user import User
 
 
 @app_views.route('/users', methods=['GET'])
-@app_views.route('/users/<user_id>', methods=['GET'])
-def get_user(user_id=None):
+@app_views.route('/users/<id_user>', methods=['GET'])
+def get_user(id_user=None):
     """Gets the user with the given id or all users.
     """
-    if user_id:
-        user = storage.get(User, user_id)
+    if id_user:
+        user = storage.get(User, id_user)
         if user:
-            obj = user.to_dict()
-            if 'places' in obj:
-                del obj['places']
-            if 'reviews' in obj:
-                del obj['reviews']
-            return jsonify(obj)
+            _object = user.to_dict()
+            if 'places' in _object:
+                del _object['places']
+            if 'reviews' in _object:
+                del _object['reviews']
+            return jsonify(_object)
         raise NotFound()
-    all_users = storage.all(User).values()
+    a_users = storage.all(User).values()
     users = []
-    for user in all_users:
-        obj = user.to_dict()
-        if 'places' in obj:
-            del obj['places']
-        if 'reviews' in obj:
-            del obj['reviews']
-        users.append(obj)
+    for user in a_users:
+        _object = user.to_dict()
+        if 'places' in _object:
+            del _object['places']
+        if 'reviews' in _object:
+            del _object['reviews']
+        users.append(_object)
     return jsonify(users)
 
 
-@app_views.route('/users/<user_id>', methods=['DELETE'])
-def remove_user(user_id):
+@app_views.route('/users/<id_user>', methods=['DELETE'])
+def remove_user(id_user):
     """Removes a user with the given id.
     """
-    user = storage.get(User, user_id)
+    user = storage.get(User, id_user)
     if user:
         storage.delete(user)
         storage.save()
@@ -64,20 +64,20 @@ def add_user():
         raise BadRequest(description='Missing password')
     user = User(**data)
     user.save()
-    obj = user.to_dict()
-    if 'places' in obj:
-        del obj['places']
-    if 'reviews' in obj:
-        del obj['reviews']
-    return jsonify(obj), 201
+    _object = user.to_dict()
+    if 'places' in _object:
+        del _object['places']
+    if 'reviews' in _object:
+        del _object['reviews']
+    return jsonify(_object), 201
 
 
-@app_views.route('/users/<user_id>', methods=['PUT'])
-def update_user(user_id):
+@app_views.route('/users/<id_user>', methods=['PUT'])
+def update_user(id_user):
     """Updates the user with the given id.
     """
-    xkeys = ('id', 'email', 'created_at', 'updated_at')
-    user = storage.get(User, user_id)
+    x_keys = ('id', 'email', 'created_at', 'updated_at')
+    user = storage.get(User, id_user)
     if user:
         data = {}
         try:
@@ -87,13 +87,13 @@ def update_user(user_id):
         if type(data) is not dict:
             raise BadRequest(description='Not a JSON')
         for key, value in data.items():
-            if key not in xkeys:
+            if key not in x_keys:
                 setattr(user, key, value)
         user.save()
-        obj = user.to_dict()
-        if 'places' in obj:
-            del obj['places']
-        if 'reviews' in obj:
-            del obj['reviews']
-        return jsonify(obj), 200
+        _object = user.to_dict()
+        if 'places' in _object:
+            del _object['places']
+        if 'reviews' in _object:
+            del _object['reviews']
+        return jsonify(_object), 200
     raise NotFound()
