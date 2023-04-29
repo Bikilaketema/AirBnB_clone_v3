@@ -10,6 +10,7 @@ import sqlalchemy
 from sqlalchemy import Column, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
+import inspect
 
 time = "%Y-%m-%dT%H:%M:%S.%f"
 
@@ -68,6 +69,14 @@ class BaseModel:
         new_dict["__class__"] = self.__class__.__name__
         if "_sa_instance_state" in new_dict:
             del new_dict["_sa_instance_state"]
+        a_frame = inspect.currentframe().f_back
+        a_func_name = a_frame.f_code.co_name
+        a_class_name = ''
+        if 'self' in a_frame.f_locals:
+            a_class_name = a_frame.f_locals["self"].__class__.__name__
+        _is_fs_writing = a_func_name == 'save' and a_class_name == 'FileStorage'
+        if 'password' in new_dict and not _is_fs_writing:
+            del new_dict['password']
         return new_dict
 
     def delete(self):
