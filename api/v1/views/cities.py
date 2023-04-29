@@ -11,9 +11,9 @@ from models.review import Review
 from models.state import State
 
 
-@app_views.route('/states/<id_state>/cities', methods=['GET', 'POST'])
-@app_views.route('/cities/<id_city>', methods=['GET', 'DELETE', 'PUT'])
-def handle_cities(id_state=None, id_city=None):
+@app_views.route('/states/<state_id>/cities', methods=['GET', 'POST'])
+@app_views.route('/cities/<city_id>', methods=['GET', 'DELETE', 'PUT'])
+def handle_city(state_id=None, city_id=None):
     """The method handler for the cities endpoint.
     """
     handler_dict = {
@@ -23,39 +23,39 @@ def handle_cities(id_state=None, id_city=None):
         'PUT': update_city,
     }
     if request.method in handler_dict:
-        return handler_dict[request.method](id_state, id_city)
+        return handler_dict[request.method](state_id, city_id)
     else:
         raise MethodNotAllowed(list(handler_dict.keys()))
 
 
-def get_cities(id_state=None, id_city=None):
+def get_cities(state_id=None, city_id=None):
     """Gets the city with the given id or all cities in
        the state with the given id.
     """
-    if id_state:
-        state = storage.get(State, id_state)
+    if state_id:
+        state = storage.get(State, state_id)
         if state:
             cities = list(map(lambda x: x.to_dict(), state.cities))
             return jsonify(cities)
-    elif id_city:
-        city = storage.get(City, id_city)
+    elif city_id:
+        city = storage.get(City, city_id)
         if city:
             return jsonify(city.to_dict())
     raise NotFound()
 
 
-def remove_city(id_state=None, id_city=None):
+def remove_city(state_id=None, city_id=None):
     """Removes a city with the given id.
     """
-    if id_city:
-        city = storage.get(City, id_city)
+    if city_id:
+        city = storage.get(City, city_id)
         if city:
             storage.delete(city)
             if storage_t != "db":
                 for place in storage.all(Place).values():
-                    if place.id_city == id_city:
+                    if place.city_id == city_id:
                         for review in storage.all(Review).values():
-                            if review.id_place == place.id:
+                            if review.place_id == place.id:
                                 storage.delete(review)
                         storage.delete(place)
             storage.save()
@@ -63,10 +63,10 @@ def remove_city(id_state=None, id_city=None):
     raise NotFound()
 
 
-def add_city(id_state=None, id_city=None):
+def add_city(state_id=None, city_id=None):
     """Adds a new city.
     """
-    state = storage.get(State, id_state)
+    state = storage.get(State, state_id)
     if not state:
         raise NotFound()
     data = request.get_json()
@@ -74,18 +74,18 @@ def add_city(id_state=None, id_city=None):
         raise BadRequest(description='Not a JSON')
     if 'name' not in data:
         raise BadRequest(description='Missing name')
-    data['id_state'] = id_state
+    data['state_id'] = state_id
     city = City(**data)
     city.save()
     return jsonify(city.to_dict()), 201
 
 
-def update_city(id_state=None, id_city=None):
+def update_city(state_id=None, city_id=None):
     """Updates the city with the given id.
     """
-    x_keys = ('id', 'id_state', 'created_at', 'updated_at')
-    if id_city:
-        city = storage.get(City, id_city)
+    x_keys = ('id', 'state_id', 'created_at', 'updated_at')
+    if city_id:
+        city = storage.get(City, city_id)
         if city:
             data = request.get_json()
             if type(data) is not dict:
